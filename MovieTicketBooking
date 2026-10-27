@@ -1,0 +1,154 @@
+Creating the Model Class...
+
+----------------Movie Ticket Booking-------------------------------
+
+package com.example.movieticketbooking.model;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
+@Entity
+public class MovieTicket {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long ticketId;
+
+    @NotBlank(message = "Movie name is required")
+    private String movieName;
+
+    @NotBlank(message = "Customer name cannot be empty")
+    private String customerName;
+
+    private String seatNumber;
+
+    @NotNull(message = "Ticket price is required")
+    @Positive(message = "Ticket price must be positive")
+    private Double ticketPrice;
+
+    public MovieTicket() {
+    }
+
+    public Long getTicketId() {
+        return ticketId;
+    }
+
+    public void setTicketId(Long ticketId) {
+        this.ticketId = ticketId;
+    }
+
+    public String getMovieName() {
+        return movieName;
+    }
+
+    public void setMovieName(String movieName) {
+        this.movieName = movieName;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getSeatNumber() {
+        return seatNumber;
+    }
+
+    public void setSeatNumber(String seatNumber) {
+        this.seatNumber = seatNumber;
+    }
+
+    public Double getTicketPrice() {
+        return ticketPrice;
+    }
+
+    public void setTicketPrice(Double ticketPrice) {
+        this.ticketPrice = ticketPrice;
+    }
+}
+
+
+---------------------Creating the Controller Class--------------------------
+
+package com.example.movieticketbooking.controller;
+
+import com.example.movieticketbooking.model.MovieTicket;
+import com.example.movieticketbooking.repository.MovieTicketRepository;
+
+import jakarta.validation.Valid;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/tickets")
+public class MovieTicketController {
+
+    private final MovieTicketRepository repository;
+
+    public MovieTicketController(MovieTicketRepository repository) {
+        this.repository = repository;
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public MovieTicket bookTicket(
+            @Valid @RequestBody MovieTicket ticket) {
+
+        return repository.save(ticket);
+    }
+
+    @GetMapping
+    public List<MovieTicket> getAllTickets() {
+        return repository.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public MovieTicket getTicketById(@PathVariable Long id) {
+        return repository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Ticket not found"));
+    }
+}
+
+Create the Main Application Class
+
+
+package com.example.movieticketbooking;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class MovieTicketBookingApplication {
+
+    public static void main(String[] args) {
+
+        SpringApplication.run(
+                MovieTicketBookingApplication.class, args);
+    }
+}
+
+-------------Create the Repository Interface--------------
+
+package com.example.movieticketbooking.repository;
+
+import com.example.movieticketbooking.model.MovieTicket;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface MovieTicketRepository
+        extends JpaRepository<MovieTicket, Long> {
+
+}
+
